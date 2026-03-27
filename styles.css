@@ -358,6 +358,8 @@ a { text-decoration: none; color: inherit; }
     top: 10px; left: 24px;
     line-height: 1;
 }
+.stars { font-size: 1.1rem; margin-bottom: 14px; letter-spacing: 2px; }
+
 .testimonial-text {
     color: var(--text-muted);
     font-size: 1rem;
@@ -398,6 +400,17 @@ a { text-decoration: none; color: inherit; }
     font-size: 1rem;
     color: var(--text-color);
     font-weight: 600;
+}
+
+/* SCROLL ANIMATIONS */
+.fade-in {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* RESPONSIVE */

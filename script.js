@@ -61,6 +61,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const yearEl = document.getElementById('copyrightYear');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+    // Scroll animations — fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
     // Sticky CTA show/hide on scroll (optional for desktop)
     const stickyCta = document.querySelector('.sticky-cta');
     const heroSection = document.querySelector('.hero');
