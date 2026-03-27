@@ -1,51 +1,53 @@
 <?php
-// Wymuszenie odpowiedzi JSON (wymagane przez nasz plik script.js)
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json');
 
-// ==========================================
-// KONFIGURACJA
-// MIEJSCE NA ADRES E-MAIL KLIENTA BIURA:
-$odbiorca = "TUTAJ_WPISZ_EMAIL_KLIENTA@domena.pl"; 
-// ==========================================
-
-$tytul = "NOWY LEAD: N-Nieruchomości (Skup/Pośrednictwo)";
-
-// Zabezpieczenie przez RODO i atakami bezpośrednimi
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // Oczyszczenie wejść z formularza (ochrona przez XSS)
-    $telefon = strip_tags(trim($_POST["phone"] ?? ''));
-    $lokalizacja = strip_tags(trim($_POST["location"] ?? ''));
-    $typ = strip_tags(trim($_POST["type"] ?? ''));
+    // Odbieranie przesłanych danych z quizu
+    $propertyType = filter_var($_POST['propertyType'], FILTER_SANITIZE_STRING);
+    $location = filter_var($_POST['location'], FILTER_SANITIZE_STRING);
+    $phone = filter_var($_POST['phone'], FILTER_SANITIZE_STRING);
+    $userIntent = filter_var($_POST['userIntent'], FILTER_SANITIZE_STRING); // "skup" lub "posrednictwo" lub "nie_okreslono"
 
-    // Walidacja – upewnianie się, że plik nie otrzymał pustego żądania
-    if (empty($telefon) || empty($lokalizacja) || empty($typ)) {
-        http_response_code(400); // 400 Bad Request
-        echo json_encode(["errors" => [["message" => "Proszę wypełnić wszystkie pola formularza."]]]);
+    // Podstawowa walidacja
+    if (empty($propertyType) || empty($location) || empty($phone)) {
+        http_response_code(400);
+        echo json_encode(["errors" => [["message" => "Proszę wypełnić wszystkie kroki ankiety."]]]);
         exit;
     }
 
-    // Budowanie treści wiadomości dla klienta
-    $wiadomosc = "Otrzymałeś nowe zgłoszenie z własnego Landing Page:\n\n";
-    $wiadomosc .= "Telefon klienta: $telefon\n";
-    $wiadomosc .= "Dzielnica / Miasto: $lokalizacja\n";
-    $wiadomosc .= "Zainteresowany cel: $typ\n\n";
-    $wiadomosc .= "--\nZadzwoń do niego jak najszybciej, by wyprzedzić konkurencję!\n";
+    // Twoj adres e-mail, na który ma przyjść zgłoszenie
+    $to = "kontakt@nnieruchomosci.pl"; 
+    $subject = "🔥 NOWY LEAD Z QUIZU: " . ucfirst($propertyType) . " | " . $location;
+    
+    // Treść wiadomości e-mail
+    $message = "Nowe zgłoszenie z lejka sprzedażowego!\n\n";
+    $message .= "CZEGO DOTYCZY: " . ucfirst($propertyType) . "\n";
+    $message .= "LOKALIZACJA: " . $location . "\n";
+    $message .= "TELEFON KONTAKTOWY: " . $phone . "\n";
+    $message .= "INTENCJA KLIENTA (co kliknął na górze?): " . strtoupper($userIntent) . "\n\n";
+    $message .= "Pamiętaj, odzwoń jak najszybciej (KPI: <24h).";
 
-    // Opcjonalne: Ustaw własnego maila do wysyłki (tzw nadawcę wpisanego na stałe) w FROM
-    $naglowki = "From: system-na-twoim-vps@twojadomena.pl\r\n"; 
-    $naglowki .= "Content-Type: text/plain; charset=utf-8\r\n";
+    // Nagłówki
+    $headers = "From: no-reply@N-inwestycje.pl\r\n";
+    $headers .= "Reply-To: no-reply@N-inwestycje.pl\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
 
-    // Wysłanie e-maila korzystając z funkcji mail() systemu operacyjnego
-    if (mail($odbiorca, $tytul, $wiadomosc, $naglowki)) {
-        http_response_code(200); // Wszystko OK
-        echo json_encode(["success" => true]);
+    // Wysłanie maila (zakładając że funkcja mail() jest poprawnie skonfigurowana na serwerze)
+    $mailSent = @mail($to, $subject, $message, $headers);
+
+    if ($mailSent) {
+        http_response_code(200);
+        echo json_encode(["success" => true, "message" => "Wiadomość z quizu została wysłana."]);
     } else {
-        http_response_code(500); // Internal Server Error
-        echo json_encode(["errors" => [["message" => "Wystąpił błąd w samej usłudze e-mail na Twoim serwerze Hostinger. Upewnij się, że VPS ma skonfigurowany pakiet serwera poczty np. Postfix albo Sendmail."]]]);
+        http_response_code(500);
+        // By testować np. na XAMPP gdzie `mail()` bywa wyłączone:
+        // echo json_encode(["success" => true, "message" => "Symulacja - mail() wyłączone."]);
+        echo json_encode(["errors" => [["message" => "Wystąpił błąd podczas wysyłania e-maila. Prawdopodobnie serwer nie obsługuje funkcji mail()."]]]);
     }
+
 } else {
     http_response_code(403);
-    echo json_encode(["errors" => [["message" => "Blokada uderzenia bezpośredniego. Endpoint przyjmuje tylko POST z formularza."]]]);
+    echo json_encode(["errors" => [["message" => "Odmowa dostępu. Wymagany POST."]]]);
 }
 ?>
