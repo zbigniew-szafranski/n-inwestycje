@@ -4,10 +4,10 @@ header('Content-Type: application/json');
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Odbieranie przesłanych danych z quizu
-    $propertyType = filter_var($_POST['propertyType'], FILTER_SANITIZE_STRING);
-    $location = filter_var($_POST['location'], FILTER_SANITIZE_STRING);
-    $phone = filter_var($_POST['phone'], FILTER_SANITIZE_STRING);
-    $userIntent = filter_var($_POST['userIntent'], FILTER_SANITIZE_STRING); // "skup" lub "posrednictwo" lub "nie_okreslono"
+    $propertyType = htmlspecialchars(strip_tags(trim($_POST['propertyType'] ?? '')));
+    $location     = htmlspecialchars(strip_tags(trim($_POST['location'] ?? '')));
+    $phone        = htmlspecialchars(strip_tags(trim($_POST['phone'] ?? '')));
+    $userIntent   = htmlspecialchars(strip_tags(trim($_POST['userIntent'] ?? 'nie_okreslono'))); // "skup" lub "posrednictwo" lub "nie_okreslono"
 
     // Podstawowa walidacja
     if (empty($propertyType) || empty($location) || empty($phone)) {

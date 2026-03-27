@@ -57,6 +57,10 @@ function prevStep(stepNum) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    // Copyright dynamiczny
+    const yearEl = document.getElementById('copyrightYear');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
     // Sticky CTA show/hide on scroll (optional for desktop)
     const stickyCta = document.querySelector('.sticky-cta');
     const heroSection = document.querySelector('.hero');
@@ -81,11 +85,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if(form) {
         form.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            
-            // Validate step 3 Phone
-            const phoneVal = document.getElementById('phoneData').value;
-            if (phoneVal.trim() === '') {
+            e.preventDefault();
+
+            // Validate step 3 Phone — polska cyfra: 9 cyfr, opcjonalnie +48 lub 48 na początku
+            const phoneVal = document.getElementById('phoneData').value.trim();
+            const phoneRegex = /^(\+?48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/;
+            if (phoneVal === '' || !phoneRegex.test(phoneVal.replace(/\s/g, ''))) {
+                document.getElementById('errStep3').innerText = 'Podaj prawidłowy numer telefonu (np. 500 123 456).';
                 document.getElementById('errStep3').classList.remove('hidden');
                 return;
             } else {
@@ -112,6 +118,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (response.ok) {
                     form.classList.add('hidden');
                     successBox.classList.remove('hidden');
+                    // Tracking konwersji — odkomentuj po konfiguracji GA4/Pixel
+                    // gtag('event', 'generate_lead', { event_category: 'quiz' });
+                    // fbq('track', 'Lead');
                 } else {
                     response.json().then(data => {
                         if (Object.hasOwn(data, 'errors')) {
