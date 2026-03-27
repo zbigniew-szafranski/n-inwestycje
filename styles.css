@@ -421,7 +421,12 @@ a { text-decoration: none; color: inherit; }
     .comparison-table td:first-child { width: auto; }
     .investors-inner { flex-direction: column; gap: 40px; }
     .how-it-works { gap: 20px; }
-    .step-arrow { display: none; }
+}
+
+@media (max-width: 420px) {
+    .hero h1 { font-size: 2rem; }
+    .section { padding: 70px 0; }
+    .quiz-title { font-size: 2.2rem; }
 }
 
 @media (max-width: 768px) {
@@ -432,14 +437,42 @@ a { text-decoration: none; color: inherit; }
     .stats-container { flex-direction: column; gap: 40px; }
     .quiz-box { padding: 25px 20px; }
     .quiz-step h3 { font-size: 1.4rem; }
+
+    /* TABELA — stacked cards na mobile */
+    .table-responsive { overflow-x: visible; }
+    .comparison-table thead { display: none; }
+    .comparison-table,
+    .comparison-table tbody,
+    .comparison-table tr,
+    .comparison-table td { display: block; width: 100%; }
+    .comparison-table tr {
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        padding: 20px 0;
+    }
+    .comparison-table tr:last-child { border-bottom: none; padding-bottom: 0; }
+    .comparison-table td { padding: 4px 20px; border-bottom: none; }
+    .comparison-table td:first-child {
+        width: 100%;
+        font-size: 1.15rem;
+        padding-bottom: 8px;
+    }
+    .comparison-table td:last-child { font-size: 0.95rem; }
+
+    /* KROKI how-it-works — pionowo */
+    .how-it-works { flex-direction: column; align-items: center; gap: 24px; margin-top: 40px; }
+    .step-item { max-width: 100%; width: 100%; }
+    .step-arrow { display: none; }
+
+    /* SEKCJA INWESTORZY */
+    .investors-inner { flex-direction: column; gap: 32px; }
+
     .sticky-cta {
         display: flex;
-        bottom: 0px; right: 0; left: 0;
+        bottom: 0; right: 0; left: 0;
         width: 100%; border-radius: 0;
         justify-content: center;
         padding: 20px;
         box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
     }
-    /* Add padding to body to compensate sticky bar */
     body { padding-bottom: 60px; }
 }
